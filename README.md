@@ -2,7 +2,12 @@
 
 Varouis Practices of using prolog and compare different parts of logic 
 
+Part 1 
+Test out different relations of people using family using prolog logic.
 
+
+
+Part 2 
 This assignment gives you practice working with list processing in Prolog.  Write a Prolog program to solve the given multi-part problem below.  Make sure you thoroughly test all your solutions for parts a-h.  If your solution gives multiple answers, make certain all answers given are correct.  Name your part b) function “my_member”
 instead of member; otherwise, use the predicate name given in each sub-problem. 
  Code your own solution to each sub-problem.  Don’t use built-in functions.    
