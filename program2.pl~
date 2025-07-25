@@ -1,0 +1,73 @@
+% countOccurrences(X, List, Count) - Counts how many times X occurs in List.
+countOccurrences(_, [], 0).
+countOccurrences(X, [X|T], Count) :-
+    countOccurrences(X, T, CountTail),
+    Count is CountTail + 1.
+countOccurrences(X, [H|T], Count) :-
+    X \= H,
+    countOccurrences(X, T, Count).
+
+% all(X, List, Result) - Removes all occurrences of X from the list.
+all(_, [], []).
+
+all(X, [X|T], Result) :-
+    all(X, T, Result).
+
+all(X, [H|T], [H|Result]) :-
+    X \= H,
+    all(X, T, Result).
+
+% makeSet(List, Set) - Creates a set by removing duplicates from the list.
+makeSet([], []).
+
+makeSet([H|T], [H|Result]) :-
+    all(H, T, []),  % Check if H is not a duplicate in the tail
+    makeSet(T, Result).
+
+makeSet([H|T], Result) :-
+    all(H, T, _),   % H is a duplicate, so skip it
+    makeSet(T, Result).
+
+% subBag(List1, List2) - Checks if List1 is a sub-bag of List2.
+subBag([], _).
+subBag([H|T], Y) :-
+    countOccurrences(H, Y, Count),
+    Count > 0,  % Ensure that each element of List1 is in List2
+    subBag(T, Y).
+
+% equalBags(List1, List2) - Checks if two bags (multisets) are equal.
+equalBags(X, Y) :-
+    makeSet(X, SetX),
+    makeSet(Y, SetY),
+    checkEqualBags(SetX, SetY).
+
+checkEqualBags([], []).
+
+checkEqualBags([H|T], Y) :-
+    countOccurrences(H, Y, CountH),
+    countOccurrences(H, T, CountT),
+    CountH = CountT,  % Ensure the count of each element matches
+    checkEqualBags(T, Y).
+
+% my_member(X, List) - Checks if X is a member of List.
+my_member(X, [X|_]).
+my_member(X, [_|T]) :-
+    my_member(X, T).
+
+% equalLists(List1, List2) - Checks if two lists are equal.
+equalLists([], []).
+equalLists([H1|T1], [H2|T2]) :-
+    H1 = H2,
+    equalLists(T1, T2).
+
+
+
+
+
+
+
+
+
+
+
+
