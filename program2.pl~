@@ -1,73 +1,124 @@
-% countOccurrences(X, List, Count) - Counts how many times X occurs in List.
-countOccurrences(_, [], 0).
-countOccurrences(X, [X|T], Count) :-
-    countOccurrences(X, T, CountTail),
-    Count is CountTail + 1.
-countOccurrences(X, [H|T], Count) :-
-    X \= H,
-    countOccurrences(X, T, Count).
-
-% all(X, List, Result) - Removes all occurrences of X from the list.
-all(_, [], []).
-
-all(X, [X|T], Result) :-
-    all(X, T, Result).
-
-all(X, [H|T], [H|Result]) :-
-    X \= H,
-    all(X, T, Result).
-
-% makeSet(List, Set) - Creates a set by removing duplicates from the list.
-makeSet([], []).
-
-makeSet([H|T], [H|Result]) :-
-    all(H, T, []),  % Check if H is not a duplicate in the tail
-    makeSet(T, Result).
-
-makeSet([H|T], Result) :-
-    all(H, T, _),   % H is a duplicate, so skip it
-    makeSet(T, Result).
-
-% subBag(List1, List2) - Checks if List1 is a sub-bag of List2.
-subBag([], _).
-subBag([H|T], Y) :-
-    countOccurrences(H, Y, Count),
-    Count > 0,  % Ensure that each element of List1 is in List2
-    subBag(T, Y).
-
-% equalBags(List1, List2) - Checks if two bags (multisets) are equal.
-equalBags(X, Y) :-
-    makeSet(X, SetX),
-    makeSet(Y, SetY),
-    checkEqualBags(SetX, SetY).
-
-checkEqualBags([], []).
-
-checkEqualBags([H|T], Y) :-
-    countOccurrences(H, Y, CountH),
-    countOccurrences(H, T, CountT),
-    CountH = CountT,  % Ensure the count of each element matches
-    checkEqualBags(T, Y).
-
-% my_member(X, List) - Checks if X is a member of List.
-my_member(X, [X|_]).
-my_member(X, [_|T]) :-
-    my_member(X, T).
-
-% equalLists(List1, List2) - Checks if two lists are equal.
+% a. equalLists(X, Y) - Tests whether two lists are equal.
 equalLists([], []).
 equalLists([H1|T1], [H2|T2]) :-
     H1 = H2,
     equalLists(T1, T2).
 
+% b. my_member(X, Y) - Tests whether X is an element of list Y.
+mymember(X, [X|]).
+mymember(X, [|T]) :- mymember(X, T).
+
+% c. all(X, Y, Z) - Removes all occurrences of X from list Y to form list Z.
+all(, [], []).
+all(X, [X|T], Z) :- all(X, T, Z).
+all(X, [H|T], [H|Z]) :- X = H, all(X, T, Z).
+
+% d. makeSet(X, Y) - Removes duplicate elements from list X to form set Y.
+makeSet([], []).
+makeSet([H|T], R) :-
+    my_member(H, T),
+    makeSet(T, R).
+makeSet([H|T], [H|R]) :-
+    + mymember(H, T),
+    makeSet(T, R).
+
+% e. subset(X, Y) - Tests whether X is a subset of Y.
+subset([], ).
+subset([H|T], Y) :-
+    mymember(H, Y),
+    subset(T, Y).
+
+% f. equalSets(X, Y) - Tests whether X and Y are equal sets.
+equalSets(X, Y) :-
+    subset(X, Y),
+    subset(Y, X).
+
+% g. subBag(X, Y) - Tests whether X is a sub-bag of Y.
+count(, [], 0).
+count(X, [X|T], N) :-
+    count(X, T, N1),
+    N is N1 + 1.
+count(X, [H|T], N) :-
+    X = H,
+    count(X, T, N).
+
+subBag([], _).
+subBag([H|T], Y) :-
+    count(H, Y, NY),
+    count(H, [H|T], NX),
+    NX =< NY,
+    subBag(T, Y).
+
+% h. equalBags(X, Y) - Tests whether X and Y are equal bags.
+equalBags(X, Y) :-
+    subBag(X, Y),
+    subBag(Y, X).
 
 
-
-
-
-
-
-
-
-
-
+#-----------Test Cases----------------------------# 
+?- 
+|
+equalLists([1, 2, 3], [1,2,3]). 
+true. 
+?- equalLists([1, 2, 3], [3, 2, 1]). 
+false. 
+?- equalLists([], []). 
+true. 
+?- equalLists([a, b, c], [a, b, c]). 
+true. 
+?- equalLists([1, 2], [1, 2, 3]).
+false. 
+#-----------------------------------------------------# 
+?-  my_member(2, [1, 2, 3, 4]). 
+true . 
+?- my_member(5, [1, 2, 3, 4]). 
+false. 
+?- my_member(a, [b, c, d]). 
+false. 
+?-  my_member(x, [x, y, z]). 
+true . 
+?- my_member(1, []). 
+false. 
+#-----------------------------------------------------# 
+?- all(2, [1, 2, 3, 2, 4], Z). 
+Z = [1, 3, 4] . 
+?- all(a, [a, b, c, a, d], Z). 
+Z = [b, c, d] . 
+?- all(x, [x, x, x], Z).
+Z = [] . 
+?- all(3, [1, 2, 3, 4, 5], Z). 
+Z = [1, 2, 4, 5] . 
+?- all(7, [1, 2, 3], Z). 
+Z = [1, 2, 3] . 
+#-----------------------------------------------------# 
+?- makeSet([a, b, a, c, c, b, d], Y). 
+Y = [a, c, b, d] . 
+?- makeSet([1, 2, 2, 3, 3, 3, 4], Y). 
+Y = [1, 2, 3, 4] . 
+?- makeSet([x, y, z, y, x], Y). 
+Y = [z, y, x] . 
+?- makeSet([], Y). 
+Y = []. 
+#-----------------------------------------------------# 
+?- subBag([1,1,2], [1,2,1,3]). 
+true . 
+?- subBag([a, a, b], [a, b, b]). 
+false. 
+?- subBag([x, y], [x, x, y, y]). 
+true . 
+?- subBag([], [1, 2, 3]). 
+true. 
+?- subBag([1, 2, 2], [1, 2]). 
+false. 
+#-----------------------------------------------------# 
+?- equalBags([1, 2, 2], [2, 1, 2]). 
+true . 
+?- equalBags([a, b, a], [a, a, b]). 
+true . 
+?- equalBags([x, y], [x, y, y]). 
+false. 
+?- equalBags([], []). 
+true. 
+?- equalBags([1, 2, 3], [3, 2, 1, 1]). 
+false. 
+#-----------------------------------------------------#
